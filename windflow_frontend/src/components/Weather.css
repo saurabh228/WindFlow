@@ -1,0 +1,135 @@
+body {
+    background-color: #2c2c2c;
+    color: #f0f0f0;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  h1, h2 {
+    color: #ffffff;
+    text-align: center;
+  }
+  
+  .loading, .error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .loading .ClipLoader, .error h1 {
+    color: #ffffff;
+  }
+  
+  .container {
+    margin: 20px;
+    padding: 20px;
+  }
+
+.current-weather-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+
+}
+    .temperature-buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        margin: 20px 40px;
+    }
+        .active {
+            background-color: #c1c1c1;
+            color: #3e3e3e;
+        }
+    .current-weather-box {
+        margin: 20px;
+        padding: 20px;
+        background-color: #3c3c3c;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .weather-update{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+    }
+    .interval-input{
+        margin: 10px;
+    }
+  
+.select-container {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    border: 1px solid #e7e7e7;
+}
+
+  .select-element {
+    margin-left: 10px;
+    border-radius: 5px;
+    background-color: #4c4c4c;
+    color: #631e1e;
+  }
+  
+  .chart-container {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 100px;
+    margin-right: 100px;
+
+  }
+  
+  .chart {
+    width: 45%;
+    background-color: #3c3c3c;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  input[type="number"] {
+    width: 100px;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    background-color: #4c4c4c;
+    color: #ffffff;
+  }
+  
+  button {
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4c4c4c;
+    color: #ffffff;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #5c5c5c;
+  }
+  
+  .alerts-container {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #3c3c3c;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .alert {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #4c4c4c;
+    border-radius: 5px;
+  }

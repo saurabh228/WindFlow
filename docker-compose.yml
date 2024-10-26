@@ -1,0 +1,60 @@
+services:
+  windflow_backend:
+    build: ./windflow_backend
+    volumes:
+      - ./windflow_backend:/windflow_backend
+    ports:
+      - 8000:8000
+    environment:
+      - DJANGO_SUPERUSER_USERNAME=windflow_admin
+      - DJANGO_SUPERUSER_EMAIL=admin@example.com
+      - DJANGO_SUPERUSER_PASSWORD=iamwindmaker
+      - OPENWEATHERMAP_API_KEY=b4520991f4292197a8ca6143877d0869
+      - DB_NAME=windflow_db
+      - DB_USER=windflow_admin
+      - DB_PASSWORD=iamwindmaker
+      - DB_HOST=windflow_db
+      - DB_PORT=5432
+    command: /windflow_backend/entrypoint.sh
+    depends_on:
+      - windflow_db
+      - redis
+
+  redis:
+    image: redis
+
+  windflow_db:
+    image: postgres
+    ports:
+      - 5432:5432
+    # volumes: 
+    #   - pgdata:/var/lib/postgresql/data
+    #   - pgconf:/etc/postgresql
+    #   - pglog:/var/log/postgresql
+    environment:
+      - POSTGRES_DB=windflow_db
+      - POSTGRES_USER=windflow_admin
+      - POSTGRES_PASSWORD=iamwindmaker
+
+  windflow_frontend:
+    build:
+      context: ./windflow_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://windflow_backend:8000/
+    volumes:
+      - ./windflow_frontend:/windflow_frontend 
+      - /windflow_frontend/node_modules
+    depends_on:
+      - windflow_backend
+    command: npm start
+
+# volumes:
+#   pgdata:
+#     driver: local
+#   pgconf:
+#     driver: local
+#   pglog: 
+#     driver: local
+    
