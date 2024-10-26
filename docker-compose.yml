@@ -9,7 +9,7 @@ services:
       - DJANGO_SUPERUSER_USERNAME=windflow_admin
       - DJANGO_SUPERUSER_EMAIL=admin@example.com
       - DJANGO_SUPERUSER_PASSWORD=iamwindmaker
-      - OPENWEATHERMAP_API_KEY=b4520991f4292197a8ca6143877d0869
+      - OPENWEATHERMAP_API_KEY= ""
       - DB_NAME=windflow_db
       - DB_USER=windflow_admin
       - DB_PASSWORD=iamwindmaker
