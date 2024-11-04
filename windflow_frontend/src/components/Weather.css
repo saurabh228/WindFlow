@@ -23,8 +23,12 @@ body {
   }
   
   .container {
-    margin: 20px;
+    margin: 20px 50px 0 50px;
     padding: 20px;
+  }
+
+  .main-container{
+    margin: 10px 150px 10px 150px;
   }
 
 .current-weather-container {
@@ -78,22 +82,6 @@ body {
     color: #631e1e;
   }
   
-  .chart-container {
-    display: flex;
-    justify-content: space-between;
-    margin-left: 100px;
-    margin-right: 100px;
-
-  }
-  
-  .chart {
-    width: 45%;
-    background-color: #3c3c3c;
-    padding: 20px;
-    margin: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
   
   input[type="number"] {
     width: 100px;
@@ -132,4 +120,27 @@ body {
     padding: 10px;
     background-color: #4c4c4c;
     border-radius: 5px;
+  }
+
+  .thresholds-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .form-container {
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: column;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #3c3c3c;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .form-container input {
+    margin: 20px;
   }

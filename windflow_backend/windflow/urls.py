@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import get_rollups, get_current_weather, get_cities, get_interval, set_interval, check_connection_status, get_thresholds, set_thresholds
+from .views import get_rollups, get_current_weather, get_cities, get_interval, set_interval, check_connection_status, get_thresholds, set_thresholds, delete_threshold
 
 urlpatterns = [
     path('get-rollups/', get_rollups),
@@ -10,4 +10,5 @@ urlpatterns = [
     path('set-interval/', set_interval),
     path('get-thresholds/', get_thresholds),
     path('set-thresholds/', set_thresholds),
+    path('delete-threshold/', delete_threshold)
 ]

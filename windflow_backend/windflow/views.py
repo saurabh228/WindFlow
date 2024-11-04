@@ -48,14 +48,14 @@ def get_rollups(request):
     paginator = PageNumberPagination()
     paginator.page_size = 6
     cities = City.objects.all()
-    padinated_rollups = {}
+    paginated_rollups = {}
     try:
         for city in cities:
             rollups = DailySummary.objects.filter(city=city).order_by('-date')
             serialized_rollups = DailySummarySerializer(rollups, many=True).data
-            padinated_rollups[city.name] = paginator.paginate_queryset(serialized_rollups, request)
+            paginated_rollups[city.name] = paginator.paginate_queryset(serialized_rollups, request)
 
-        return paginator.get_paginated_response(padinated_rollups)
+        return paginator.get_paginated_response(paginated_rollups)
     except DailySummary.DoesNotExist as e:
         return Response(
             {'error':str(e)},
@@ -105,8 +105,22 @@ def get_rollups(request):
 def get_current_weather(request):
     try:
         connection_status = ConnectionStatus.objects.get(pk=1)
+        if connection_status.status == False:
+            fetch_weather_data_task()
+            connection_status = ConnectionStatus.objects.get(pk=1)
         if connection_status.status == True:
             latest_weather_data = WeatherData.objects.order_by('city', '-dt').distinct('city')
+
+            if not latest_weather_data.exists():
+                fetch_weather_data_task()
+                connection_status = ConnectionStatus.objects.get(pk=1)
+                if connection_status.status == True:
+                    latest_weather_data = WeatherData.objects.order_by('city', '-dt').distinct('city')
+                else:
+                    return Response(
+                        {'error':f'server is not connected to the weather station {connection_status.status}'},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
             serialized_weather_data = WeatherDataSerializer(latest_weather_data, many=True)
             return Response(serialized_weather_data.data, status=status.HTTP_200_OK)
         else:
@@ -255,9 +269,9 @@ def check_connection_status(request):
 @api_view(['GET'])
 def get_interval(request):
     try:
-        interval = IntervalSchedule.objects.values('period').get(pk=1)
-        interval = int(interval)
-        return Response({'interval': interval}, status=status.HTTP_200_OK)
+        interval = IntervalSchedule.objects.values('every', 'period').get(pk=1)
+        # every = int(interval['every'])
+        return Response(interval, status=status.HTTP_200_OK)
 
     except IntervalSchedule.DoesNotExist as e:
         return Response(
@@ -438,6 +452,7 @@ def get_thresholds(request):
 )
 @api_view(['POST'])
 def set_thresholds(request):
+    print("incoming request", request.data, flush=True)
     try:
         city_name = request.data.get('city')
         if not city_name:
@@ -452,21 +467,27 @@ def set_thresholds(request):
         wind_speed_data = request.data.get('wind_speed', {})
         condition_data = request.data.get('condition', {})
 
-        tt, _ = TemperatureThreshold.objects.update_or_create(city=city, defaults=temperature_data)
-        ht, _ = HumidityThreshold.objects.update_or_create(city=city, defaults=humidity_data)
-        wt, _ = WindSpeedThreshold.objects.update_or_create(city=city, defaults=wind_speed_data)
-        ct, _ = ConditionThreshold.objects.update_or_create(city=city, defaults=condition_data)
+        thresholds = {}
 
-        thresholds = {
-            'temperature': tt,
-            'humidity': ht,
-            'wind_speed': wt,
-            'condition': ct,
-        }
+        if temperature_data:
+            tt, _ = TemperatureThreshold.objects.update_or_create(city=city, defaults={"min_threshold": temperature_data.get('min_threshold') if temperature_data.get('min_threshold') else None, "max_threshold": temperature_data.get('max_threshold') if temperature_data.get('max_threshold') else None, "consecutive_updates": temperature_data.get('consecutive_updates') if temperature_data.get('consecutive_updates') else 3})
+            thresholds['temperature'] = TemperatureThresholdSerializer(tt).data
+        if humidity_data:
+            ht, _ = HumidityThreshold.objects.update_or_create(city=city, defaults={"min_threshold": humidity_data.get('min_threshold') if humidity_data.get('min_threshold') else None, "max_threshold": humidity_data.get('max_threshold') if humidity_data.get('max_threshold') else None, "consecutive_updates": humidity_data.get('consecutive_updates') if humidity_data.get('consecutive_updates') else 3})
+            thresholds['humidity'] = HumidityThresholdSerializer(ht).data
+        if wind_speed_data:
+            wt, _ = WindSpeedThreshold.objects.update_or_create(city=city, defaults={"min_threshold": wind_speed_data.get('min_threshold') if wind_speed_data.get('min_threshold') else None, "max_threshold": wind_speed_data.get('max_threshold') if wind_speed_data.get('max_threshold') else None, "consecutive_updates": wind_speed_data.get('consecutive_updates') if wind_speed_data.get('consecutive_updates') else 3})
+            thresholds['wind_speed'] = WindSpeedThresholdSerializer(wt).data
+        if condition_data:
+            ct, _ = ConditionThreshold.objects.update_or_create(city=city, defaults={"condition": condition_data.get('condition') if condition_data.get('condition') else None, "consecutive_updates": condition_data.get('consecutive_updates') if condition_data.get('consecutive_updates') else 3})
+            thresholds['condition'] = ConditionThresholdSerializer(ct).data
+    
 
         return Response(thresholds, status=status.HTTP_200_OK)
     
     except ValueError as e:
+        print("error aa gya oye", flush=True)
+        print(e, flush=True)
         return Response(
             {'error': 'Invalid data provided for thresholds'},
             status=status.HTTP_400_BAD_REQUEST,
@@ -474,6 +495,108 @@ def set_thresholds(request):
     except City.DoesNotExist as e:
         return Response(
             {'error': str(e)},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    except Exception as e:
+        print("error aa gya oye", flush=True)
+        print(e, flush=True)
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+@swagger_auto_schema(
+    method='delete',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'type': openapi.Schema(type=openapi.TYPE_STRING, description='Threshold type'),
+            'id': openapi.Schema(type=openapi.TYPE_INTEGER, description='Threshold ID'),
+        }
+    ),
+    responses={
+        200: openapi.Response('Threshold deleted',
+            openapi.Schema(
+                type=openapi.TYPE_OBJECT, description='Threshold deleted successfully'
+            )
+        ),
+        400: openapi.Response('Bad Request', 
+            openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING, description='Error message')
+                }
+            )
+        ),
+        404: openapi.Response('Not Found',
+            openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING, description='Error message')
+                }
+            )
+        ),
+        500: openapi.Response('Internal server error', 
+            openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING, description='Error message')
+                }
+            )
+        )
+    }
+)
+@api_view(['DELETE'])
+def delete_threshold(request):
+    print("incoming request", request.data, flush=True)
+    threshold_type = request.data.get('type')
+    threshold_id = request.data.get('id')
+
+    if not threshold_type or not threshold_id:
+        return Response(
+            {'error': 'Type and ID are required', 'data': request.data},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        if threshold_type == 'temperature':
+            threshold = TemperatureThreshold.objects.get(id=threshold_id)
+        elif threshold_type == 'humidity':
+            threshold = HumidityThreshold.objects.get(id=threshold_id)
+        elif threshold_type == 'wind_speed':
+            threshold = WindSpeedThreshold.objects.get(id=threshold_id)
+        elif threshold_type == 'condition':
+            threshold = ConditionThreshold.objects.get(id=threshold_id)
+        else:
+            return Response(
+                {'error': 'Invalid threshold type'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        threshold.delete()
+        return Response(
+            {'message': 'Threshold deleted successfully'},
+            status=status.HTTP_200_OK,
+        )
+    except TemperatureThreshold.DoesNotExist:
+        return Response(
+            {'error': 'Temperature threshold not found'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    except HumidityThreshold.DoesNotExist:
+        return Response(
+            {'error': 'Humidity threshold not found'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    except WindSpeedThreshold.DoesNotExist:
+        return Response(
+            {'error': 'Wind speed threshold not found'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    except ConditionThreshold.DoesNotExist:
+        return Response(
+            {'error': 'Condition threshold not found'},
             status=status.HTTP_404_NOT_FOUND,
         )
     except Exception as e:

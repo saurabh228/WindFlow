@@ -11,6 +11,10 @@ __pycache__/
 *.pyc
 *.pyo
 __pycache__/
+*/staticfiles/
+
+# npm package lock file
+windflow_frontend/package-lock.json
 
 # Node.js
 node_modules/

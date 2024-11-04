@@ -1,0 +1,145 @@
+.city-card {
+    background-color: #ffffff;
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .city-card-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: rgb(0, 57, 138);
+    align-items: center;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    width: 40%;
+    height: 100%;
+  }
+
+
+  .weather-container {
+    width: 100%;
+    width: fit-content;
+    border-radius: 10px;
+    overflow: wrap;
+    box-shadow: 0 4px 8px rgba(248, 219, 219, 0.1);
+  }
+  
+  .weather-box {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .weather-top {
+    border-radius: 10px 10px 0 0;
+    background-color: #f0f0f0; /* Top section color */
+    padding: 20px;
+  }
+  
+  .weather-bottom {
+    border-radius: 0 0 10px 10px;
+    display: flex;
+    flex-direction: row;
+    background-color: #c89191; /* Bottom section color */
+    padding: 20px 20px;
+  }
+  
+  .weather-top h2{
+    margin: 0;
+    font-size: 1.1em;
+    color: #323232f1;
+  }
+
+  .weather-bottom h2 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #fff;
+  }
+  
+  .weather-bottom input {
+    padding: 5px 0;
+    border: 3px solid #aa7979;
+    border-radius: 8px;
+    font-size: 1em;
+    width: 65px;
+    padding-left: 2px;
+    background-color: #c89191;
+    margin-top: -8px;
+    margin-bottom: 0;
+    margin-left: 5px;
+  }
+  
+  .city-card h2 {
+    margin-top: 0;
+  }
+  
+  .city-card p {
+    margin: 5px 0;
+  }
+  
+  .temperature-buttons {
+    display: flex;
+    flex-direction: row;
+    background-color: rgb(193, 255, 255);
+    justify-content: space-between;
+    /* margin-left: 30px; */
+    flex-wrap: wrap;
+    padding: 10px;
+    width: 45%;
+    border-radius: 10px;
+    box-sizing: border-box;
+  }
+  
+  .temperature-buttons button {
+    margin: 5px 5px;
+    padding: 5px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    max-width: 100px;
+  }
+  
+  .temperature-buttons button.active {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  .city-card-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(247, 247, 247);
+    padding: 10px;
+    width: 60%;
+    height: 100%;
+  }
+  
+  .chart-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }
+  .bar-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .bar-container .bar-chart {
+    width: 47%;
+  }
+  .label-description {
+    width: 100%;
+    text-align: center;
+    font-size: small;
+  }

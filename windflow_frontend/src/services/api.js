@@ -94,4 +94,15 @@ export const setThresholds = async (thresholds) => {
   }
 };
 
+// Delete threshold
+export const deleteThreshold = async (type, id) => {
+  try {
+    const response = await apiClient.delete('/delete-threshold/', { data:{type, id}, });
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting threshold:', error);
+    throw error;
+  }
+};
+
 export default apiClient;

@@ -12,17 +12,22 @@ logger = get_task_logger(__name__)
 @shared_task
 def fetch_weather_data_task():
     try:
-        fetch_weather_data()
-        weather_data = update_daily_summary_for_today()
+        weather_data = fetch_weather_data()
+        updated_data = update_daily_summary_for_today()
         update_connection_status(True)
         logger.info('Successfully fetched weather data')
-        send_weather(weather_data)
         alerts = check_thresholds()
-        if alerts:
-            send_alert(alerts)
+
+        notification_data = {
+            'weather': weather_data,
+            'roll_ups': updated_data,
+            'alerts': alerts
+        }
+        send_weather(notification_data)
             
     except Exception as e:
         update_connection_status(False)
+        print("error",e)
         logger.error(f'Error fetching weather data: {e}')
 
 
@@ -36,24 +41,13 @@ def update_connection_status(success):
     status.save()
 
 
-def send_alert(alert):
+def send_weather(data):
     channel_layer = get_channel_layer()
-    alert = json.dumps(alert)
-    async_to_sync(channel_layer.group_send)(
-        "notifications",
-        {
-            "type": "alert",
-            "message": alert,
-        }
-    )
-
-def send_weather(weather):
-    channel_layer = get_channel_layer()
-    weather = json.dumps(weather)
+    data = json.dumps(data)
     async_to_sync(channel_layer.group_send)(
         "notifications",
         {
             "type": "weather",
-            "message": weather,
+            "message": data,
         }
     )

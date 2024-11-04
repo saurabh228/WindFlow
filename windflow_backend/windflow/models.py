@@ -62,7 +62,7 @@ class TemperatureThreshold(models.Model):
     consecutive_updates = models.IntegerField(default=3)
 
     def __str__(self):
-        return f"Temperature Threshold for {self.city}: Temp > {self.temp_threshold}°C"
+        return f"Temperature Threshold for {self.city}: Min {self.min_threshold}°C, Max {self.max_threshold}°C"
 
 class HumidityThreshold(models.Model):
     city = models.CharField(max_length=100)
@@ -71,7 +71,7 @@ class HumidityThreshold(models.Model):
     consecutive_updates = models.IntegerField(default=3)
 
     def __str__(self):
-        return f"Humidity Threshold for {self.city}: Humidity > {self.humidity_threshold}%"
+        return f"Humidity Threshold for {self.city}: Min {self.min_threshold}%, Max {self.max_threshold}%"
 
 class WindSpeedThreshold(models.Model):
     city = models.CharField(max_length=100)
@@ -80,7 +80,7 @@ class WindSpeedThreshold(models.Model):
     consecutive_updates = models.IntegerField(default=3)
 
     def __str__(self):
-        return f"Wind Speed Threshold for {self.city}: Wind Speed > {self.wind_speed_threshold} m/s"
+        return f"Wind Speed Threshold for {self.city}: Wind Speed > Min {self.min_threshold} m/s, Max {self.max_threshold} m/s"
 
 class ConditionThreshold(models.Model):
     city = models.CharField(max_length=100)

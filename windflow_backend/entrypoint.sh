@@ -8,6 +8,7 @@ done
 # Apply migrations
 python manage.py makemigrations
 python manage.py migrate
+python manage.py collectstatic --noinput
 
 # Create superuser if it doesn't already exist
 python manage.py shell -c "
@@ -18,12 +19,12 @@ if not User.objects.filter(username='${DJANGO_SUPERUSER_USERNAME}').exists():
 "
 
 python manage.py setup_defaults
-python manage.py backfill_daily_summaries
+python manage.py backfill_daily_summary
 
 # Start Celery worker and beat in the background
 celery -A windflow_backend worker --loglevel=info &
 celery -A windflow_backend beat --loglevel=info &
 
-# Start the Django server
-exec python manage.py runserver 0.0.0.0:8000
+# Start the Daphne ASGI server
+exec daphne -b 0.0.0.0 -p 8000 windflow_backend.asgi:application
 
